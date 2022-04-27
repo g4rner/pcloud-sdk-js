@@ -1,72 +1,44 @@
-<html>
-<head>
-  <title>pCloud SDK: Examples / Remote Upload</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 20px;
-    }
-    #gettoken {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-    }
-    textarea {
-      width: 400px;
-      height: 50px;
-    }
-  </style>
-</head>
-<body>
+<form>
+  <input type="file" name="file" accept="image/*" onchange="uploadFile">
+</form>
+<script>
+function uploadFile(){
+/**
+ * Two variables should already be set.
+ * dropboxToken = OAuth access token, specific to the user.
+ * file = file object selected in the file widget.
+ */
+  console.log("xxx");
+ var xhr = new XMLHttpRequest();
+ 
+ xhr.upload.onprogress = function(evt) {
+   var percentComplete = parseInt(100.0 * evt.loaded / evt.total);
+   // Upload in progress. Do something here with the percent complete.
+ };
+  
+ xhr.onload = function() {
+   if (xhr.status === 200) {
+     var fileInfo = JSON.parse(xhr.response);
+     // Upload succeeded. Do something here with the file info.
+   }
+   else {
+     var errorMessage = xhr.response || 'Unable to upload file';
+     // Upload failed. Do something here with the error.
+   }
+ };
+  
+ xhr.open('POST', 'https://content.dropboxapi.com/2/files/upload');
+ xhr.setRequestHeader('Authorization', 'Bearer ' + 'sl.BGg4PZZeVHf_3szsdZ7PC9HQQ1zdipkgC7Ij8ZuObFMSF-Kb7V5VI-Qf-jXBANA6tCF9wF_DD_k1TkW7fXq7REgdup7T6lWfccnMNUWgMsk-jetrKKLJnF00kF0AZZo9k1yG1rE');
+ xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+ xhr.setRequestHeader('Dropbox-API-Arg', JSON.stringify({
+   path: '/' +  'filename',
+   mode: 'add',
+   autorename: true,
+   mute: false
+ }));
+  
+ xhr.send("x.txt");
 
-  <button id="gettoken">Get Token</button>
+}
 
-  <textarea id="urls">http://zhm.ludost.net/mulder.jpg</textarea><br /><br />
-  <input type="button" value="Remote Upload" id="file" disabled="disabled" />
-
-  <script type="text/javascript" src="/examples/pcloudsdk.js"></script>
-  <script>
-    'use strict';
-    var access_token = false;
-    var locationid = "";
-    var client = false;
-    el("file").addEventListener('click', function(e) {
-      if (!client) {
-        console.error('no token, click the button to get token.');
-        return;
-      }
-
-      client.remoteupload(el('urls').value, 0, {
-        onBegin: function() {
-          console.log('Upload started.');
-        },
-        onProgress: function(progress) {
-          console.log(progress);
-        },
-        onFinish: function(uploadData) {
-          console.log(uploadData);
-        }
-      });
-    }, false);
-
-    function el(id) {
-      return document.getElementById(id);
-    }
-
-    el('gettoken').addEventListener('click', function(e) {
-      pCloudSdk.oauth.initOauthToken({
-        client_id: 'p1WznE2dEPm',
-        redirect_uri: 'http://127.0.0.1:8080/oauth.html',
-        receiveToken: function(token, id) {
-          console.log(token, id);
-          access_token = token;
-          locationid = id || 1;
-          client = pCloudSdk.createClient(token);
-          el('file').disabled = false;
-        }
-      });
-    }, false);
-
-  </script>
-</body>
-</html>
+</script>
